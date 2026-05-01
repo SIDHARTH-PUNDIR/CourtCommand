@@ -8,7 +8,7 @@
   [![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=socket.io&logoColor=white)](https://socket.io/)
   [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
   [![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-  [![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 </div>
 
 <br/>
@@ -54,7 +54,7 @@ An intelligent analytics module built in Python to provide **strategic insights*
 | **Frontend** | HTML5, CSS3, Vanilla JS, EJS (Embedded JavaScript) |
 | **Backend** | Node.js, Express.js |
 | **Real-Time** | Socket.io |
-| **Database** | MySQL (via `mysql2/promise`) |
+| **Database** | PostgreSQL (via `pg` / `node-postgres`) |
 | **AI / ML Service** | Python, Flask, Pandas, Scikit-Learn |
 
 ---
@@ -80,11 +80,14 @@ CourtCommand/
 ### Prerequisites
 * Node.js (v16+)
 * Python (v3.8+)
-* MySQL server (XAMPP or standalone)
+* PostgreSQL server (v13+ recommended)
 
 ### 1️⃣ Database Setup
-1. Open your MySQL client and create a new database: `court_command`
-2. Run the SQL script located in `database/schema.sql` (or equivalent setup script) to generate the required tables.
+1. Open your PostgreSQL client (psql or pgAdmin) and create a new database: `court_command`
+```sql
+CREATE DATABASE court_command;
+```
+2. Run the SQL script located in `database/schema.sql` to generate the required tables.
 
 ### 2️⃣ Backend Setup (Node.js)
 ```bash
@@ -94,9 +97,10 @@ npm install
 Create a `.env` file in the `backend/` directory:
 ```env
 DB_HOST=localhost
-DB_USER=root
-DB_PASS=
+DB_USER=postgres
+DB_PASS=your_password
 DB_NAME=court_command
+DB_PORT=5432
 PORT=3000
 ```
 Start the server:
