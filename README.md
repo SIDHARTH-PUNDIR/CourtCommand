@@ -138,6 +138,16 @@ python app.py
 
 ---
 
+
+## 🔗 Original Collaborative Repository
+
+This project was developed collaboratively by all four team members. The original repository, containing the complete commit history and contributions from all developers, can be found here:
+
+👉 **[Astic-x/CourtCommand](https://github.com/Astic-x/CourtCommand)**
+
+> This repository is a personal fork maintained by [@SIDHARTH-PUNDIR](https://github.com/SIDHARTH-PUNDIR) reflecting the PostgreSQL migration and setup changes.
+
+
 **Project Developers**
 
 <table>
@@ -148,6 +158,7 @@ python app.py
     <td align="center"><a href="https://github.com/akshatbansal13"><img src="https://github.com/akshatbansal13.png" width="100px;" alt=""/><br /><sub><b>Akshat Bansal</b></sub></a></td>
   </tr>
 </table>
+
 
 <p align="center">
   <br>
