@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Live Match</title>
+  <link rel="stylesheet" href="/css/live.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <%- include("../partials/navbar") %>
+
+    <div class="live-page">
+
+      <!-- SCOREBOARD HERO -->
+      <div class="scoreboard-hero">
+        <div class="sb-noise"></div>
+        <div class="sb-inner">
+
+          <div class="sb-team sb-team--a">
+            <div class="sb-team-abbr">
+              <%= match.teama %>
+            </div>
+            <div class="sb-team-label">Home</div>
+          </div>
+
+          <div class="sb-center">
+            <div class="sb-scores">
+              <span class="sb-score">
+                <%= match.scorea %>
+              </span>
+              <span class="sb-dash">—</span>
+              <span class="sb-score">
+                <%= match.scoreb %>
+              </span>
+            </div>
+            <div class="sb-meta">
+              <%# Feature 2: Tournament name %>
+                <% if (match.tournament_name) { %>
+                  <span class="sb-tournament">
+                    <%= match.tournament_name %>
+                  </span>
+                  <span class="sb-divider">·</span>
+                  <% } %>
+                    <span class="sb-status <%= match.status === 'LIVE' ? 'is-live' : '' %>">
+                      <% if (match.status==='LIVE' ) { %><span class="live-dot"></span>
+                        <% } %>
+                          <%= match.status %>
+                    </span>
+                    <span class="sb-divider">·</span>
+                    <span class="sb-date">
+                      <% if (match.match_date) { %>
+                        <%= new Date(match.match_date).toLocaleDateString('en-IN', { weekday: 'short' , day: 'numeric' ,
+                          month: 'short' }) %>
+                          <% } else { %>
+                            TBD
+                            <% } %>
+                    </span>
+            </div>
+          </div>
+
+          <div class="sb-team sb-team--b">
+            <div class="sb-team-abbr">
+              <%= match.teamb %>
+            </div>
+            <div class="sb-team-label">Away</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="live-layout">
+
+        <!-- LEFT TEAM -->
+        <div class="team-panel left-team">
+          <div class="panel-header">
+            <span class="panel-label">Roster</span>
+            <span class="panel-tag">
+              <%= match.teama %>
+            </span>
+          </div>
+          <div class="roster-list">
+            <% teamAPlayers.forEach((player, i)=> { %>
+              <div class="roster-card" data-player-id="<%= player.id %>" data-points="<%= player.points || 0 %>"
+                data-fouls="<%= player.fouls || 0 %>" data-assists="<%= player.assists || 0 %>"
+                data-rebounds="<%= player.rebounds || 0 %>" data-steals="0" data-blocks="0">
+                <div class="roster-num">#<%= i + 1 %>
+                </div>
+                <img class="roster-img" src="<%= player.image %>" alt="<%= player.name %>" />
+                <div class="roster-info">
+                  <div class="roster-name">
+                    <%= player.name %>
+                  </div>
+                  <div class="roster-pos">
+                    <%= player.position %>
+                  </div>
+                </div>
+                <div class="player-tooltip">
+                  <div class="tooltip-row"><span>PTS</span><span>
+                      <%= player.points || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>AST</span><span>
+                      <%= player.assists || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>REB</span><span>
+                      <%= player.rebounds || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>STL</span><span>0</span></div>
+                  <div class="tooltip-row"><span>BLK</span><span>0</span></div>
+                  <div class="tooltip-row foul-row"><span>FOULS</span><span>
+                      <%= player.fouls || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>MIN</span><span id="live-min-<%= player.id %>">0m</span></div>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+        </div>
+
+        <!-- CENTER -->
+        <div class="center-panel">
+
+          <!-- COURT -->
+          <div class="court-panel">
+            <div class="panel-header">
+              <span class="panel-label">Court</span>
+            </div>
+            <div class="court-wrap">
+
+              <% const posMap={ PG: { x: 275, y: 215 }, SG: { x: 185, y: 118 }, SF: { x: 100, y: 312 }, PF: { x: 100, y:
+                140 }, C: { x: 165, y: 250 } }; %>
+
+                <svg class="court-svg" viewBox="0 0 800 430" xmlns="http://www.w3.org/2000/svg">
+
+                  <!-- COURT BACKGROUND -->
+                  <rect width="800" height="430" rx="14" fill="#0d1525" />
+                  <rect x="18" y="18" width="764" height="394" rx="8" fill="none" stroke="#1e3a5f" stroke-width="2" />
+                  <line x1="400" y1="18" x2="400" y2="412" stroke="#1e3a5f" stroke-width="2" />
+                  <circle cx="400" cy="215" r="60" fill="none" stroke="#1e3a5f" stroke-width="2" />
+                  <circle cx="400" cy="215" r="5" fill="#1e3a5f" />
+
+                  <!-- LEFT SIDE (HOME) -->
+                  <rect x="18" y="137" width="170" height="156" fill="rgba(255,122,24,0.05)" stroke="#1e3a5f"
+                    stroke-width="2" />
+                  <path d="M 188 137 A 60 60 0 0 1 188 293" fill="none" stroke="#1e3a5f" stroke-width="2" />
+                  <path d="M 188 137 A 60 60 0 0 0 188 293" fill="none" stroke="#1e3a5f" stroke-width="2"
+                    stroke-dasharray="6,5" />
+                  <path d="M 55 185 A 40 40 0 0 1 55 245" fill="none" stroke="#1e3a5f" stroke-width="1.5"
+                    stroke-dasharray="4,4" />
+                  <line x1="18" y1="90" x2="68" y2="90" stroke="#1e3a5f" stroke-width="2" />
+                  <line x1="18" y1="340" x2="68" y2="340" stroke="#1e3a5f" stroke-width="2" />
+                  <path d="M 68 90 Q 310 215 68 340" fill="none" stroke="#1e3a5f" stroke-width="2" />
+                  <line x1="28" y1="193" x2="28" y2="237" stroke="#ff7a18" stroke-width="5" stroke-linecap="round" />
+                  <circle cx="62" cy="215" r="11" fill="none" stroke="#ff7a18" stroke-width="2.5" />
+                  <circle cx="62" cy="215" r="15" fill="rgba(255,122,24,0.08)" />
+
+                  <!-- RIGHT SIDE (AWAY) -->
+                  <rect x="612" y="137" width="170" height="156" fill="rgba(100,150,255,0.05)" stroke="#1e3a5f"
+                    stroke-width="2" />
+                  <path d="M 612 137 A 60 60 0 0 0 612 293" fill="none" stroke="#1e3a5f" stroke-width="2" />
+                  <path d="M 612 137 A 60 60 0 0 1 612 293" fill="none" stroke="#1e3a5f" stroke-width="2"
+                    stroke-dasharray="6,5" />
+                  <path d="M 745 185 A 40 40 0 0 0 745 245" fill="none" stroke="#1e3a5f" stroke-width="1.5"
+                    stroke-dasharray="4,4" />
+                  <line x1="782" y1="90" x2="732" y2="90" stroke="#1e3a5f" stroke-width="2" />
+                  <line x1="782" y1="340" x2="732" y2="340" stroke="#1e3a5f" stroke-width="2" />
+                  <path d="M 732 90 Q 490 215 732 340" fill="none" stroke="#1e3a5f" stroke-width="2" />
+                  <line x1="772" y1="193" x2="772" y2="237" stroke="#6496ff" stroke-width="5" stroke-linecap="round" />
+                  <circle cx="738" cy="215" r="11" fill="none" stroke="#6496ff" stroke-width="2.5" />
+                  <circle cx="738" cy="215" r="15" fill="rgba(100,150,255,0.08)" />
+
+                  <!-- TEAM LABELS -->
+                  <text x="100" y="42" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-size="11"
+                    font-weight="700" letter-spacing="3" fill="#ff7a18" opacity="0.6">HOME</text>
+                  <text x="700" y="42" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-size="11"
+                    font-weight="700" letter-spacing="3" fill="#6496ff" opacity="0.6">AWAY</text>
+
+                  <!-- DEFS (clip paths) — must come before player elements -->
+                  <defs>
+                    <% teamAPlayers.forEach(function(player) { const pos=posMap[player.position] || posMap['PG']; %>
+                      <clipPath id="clip-a-<%= player.id %>">
+                        <circle cx="<%= pos.x %>" cy="<%= pos.y %>" r="22" />
+                      </clipPath>
+                      <% }) %>
+
+                        <% teamBPlayers.forEach(function(player) { const base=posMap[player.position] || posMap['PG'];
+                          const bx=800 - base.x; const by=base.y; %>
+                          <clipPath id="clip-b-<%= player.id %>">
+                            <circle cx="<%= bx %>" cy="<%= by %>" r="22" />
+                          </clipPath>
+                          <% }) %>
+                  </defs>
+
+                  <!-- TEAM A (LEFT / HOME) -->
+                  <% teamAPlayers.forEach(function(player) { const pos=posMap[player.position] || posMap['PG']; %>
+                    <circle cx="<%= pos.x %>" cy="<%= pos.y %>" r="28" fill="rgba(255,122,24,0.07)"
+                      stroke="rgba(255,122,24,0.2)" />
+                    <circle cx="<%= pos.x %>" cy="<%= pos.y %>" r="24" fill="none" stroke="#ff7a18"
+                      stroke-width="2.5" />
+                    <image href="<%= player.image %>" x="<%= pos.x - 22 %>" y="<%= pos.y - 22 %>" width="44" height="44"
+                      clip-path="url(#clip-a-<%= player.id %>)" preserveAspectRatio="xMidYMid slice" />
+                    <rect x="<%= pos.x - 16 %>" y="<%= pos.y + 26 %>" width="32" height="15" rx="4" fill="#ff7a18" />
+                    <text x="<%= pos.x %>" y="<%= pos.y + 37 %>" text-anchor="middle" font-size="9" fill="white">
+                      <%= player.position %>
+                    </text>
+                    <% }) %>
+
+                      <!-- TEAM B (RIGHT / AWAY) -->
+                      <% teamBPlayers.forEach(function(player) { const base=posMap[player.position] || posMap['PG'];
+                        const pos={ x: 800 - base.x, y: base.y }; %>
+                        <circle cx="<%= pos.x %>" cy="<%= pos.y %>" r="28" fill="rgba(100,150,255,0.07)"
+                          stroke="rgba(100,150,255,0.2)" />
+                        <circle cx="<%= pos.x %>" cy="<%= pos.y %>" r="24" fill="none" stroke="#6496ff"
+                          stroke-width="2.5" />
+                        <image href="<%= player.image %>" x="<%= pos.x - 22 %>" y="<%= pos.y - 22 %>" width="44"
+                          height="44" clip-path="url(#clip-b-<%= player.id %>)" preserveAspectRatio="xMidYMid slice" />
+                        <rect x="<%= pos.x - 16 %>" y="<%= pos.y + 26 %>" width="32" height="15" rx="4"
+                          fill="#6496ff" />
+                        <text x="<%= pos.x %>" y="<%= pos.y + 37 %>" text-anchor="middle" font-size="9" fill="white">
+                          <%= player.position %>
+                        </text>
+                        <% }) %>
+
+                </svg>
+            </div>
+          </div>
+
+          <!-- CLOCK -->
+          <div class="match-clock">
+            <span id="clock-time">10:00</span>
+            <span class="clock-label">Q1</span>
+          </div>
+
+          <!-- PLAY BY PLAY -->
+          <div class="playby-container">
+            <div class="panel-header">
+              <span class="panel-label">Play-by-Play</span>
+            </div>
+            <div class="events-feed">
+              <% if (typeof events !=='undefined' && events.length> 0) { %>
+                <% events.forEach(function(ev) { %>
+                  <div class="event-item event--<%= ev.type %>">
+                    <span class="event-time">
+                      <%= ev.time %>
+                    </span>
+                    <span class="event-icon">
+                      <% if (ev.type==='score' ) { %>🏀
+                        <% } else if (ev.type==='foul' ) { %>⚠️
+                          <% } else if (ev.type==='block' ) { %>🛡️
+                            <% } else { %>📋<% } %>
+                    </span>
+                    <span class="event-text">
+                      <%= ev.text %>
+                    </span>
+                  </div>
+                  <% }) %>
+                    <% } %>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT TEAM -->
+        <div class="team-panel right-team">
+          <div class="panel-header">
+            <span class="panel-label">Roster</span>
+            <span class="panel-tag">
+              <%= match.teamb %>
+            </span>
+          </div>
+          <div class="roster-list">
+            <% teamBPlayers.forEach((player, i)=> { %>
+              <div class="roster-card" data-player-id="<%= player.id %>" data-points="<%= player.points || 0 %>"
+                data-fouls="<%= player.fouls || 0 %>" data-assists="<%= player.assists || 0 %>"
+                data-rebounds="<%= player.rebounds || 0 %>" data-steals="0" data-blocks="0">
+                <div class="roster-num">#<%= i + 1 %>
+                </div>
+                <img class="roster-img" src="<%= player.image %>" alt="<%= player.name %>" />
+                <div class="roster-info">
+                  <div class="roster-name">
+                    <%= player.name %>
+                  </div>
+                  <div class="roster-pos">
+                    <%= player.position %>
+                  </div>
+                </div>
+                <div class="player-tooltip">
+                  <div class="tooltip-row"><span>PTS</span><span>
+                      <%= player.points || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>AST</span><span>
+                      <%= player.assists || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>REB</span><span>
+                      <%= player.rebounds || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>STL</span><span>0</span></div>
+                  <div class="tooltip-row"><span>BLK</span><span>0</span></div>
+                  <div class="tooltip-row foul-row"><span>FOULS</span><span>
+                      <%= player.fouls || 0 %>
+                    </span></div>
+                  <div class="tooltip-row"><span>MIN</span><span id="live-min-<%= player.id %>">0m</span></div>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const matchId = "<%= matchId %>";
+
+      // ── Score updates ──
+      socket.on(`match_${matchId}`, (data) => {
+        document.querySelectorAll(".sb-score")[0].textContent = data.scorea;
+        document.querySelectorAll(".sb-score")[1].textContent = data.scoreb;
+      });
+
+      // ── Live Minutes Update ──
+      socket.on('update_live_minutes', (data) => {
+        const { playerSeconds } = data;
+        if (!playerSeconds) return;
+        for (const [pid, seconds] of Object.entries(playerSeconds)) {
+          const minCell = document.getElementById(`live-min-${pid}`);
+          if (minCell) minCell.textContent = Math.floor(seconds / 60) + 'm';
+        }
+      });
+
+      // ── Live play-by-play events ──
+      socket.on(`event_${matchId}`, (data) => {
+        const feed = document.querySelector(".events-feed");
+        const icons = { score: "🏀", foul: "⚠️", block: "🛡️" };
+        const div = document.createElement("div");
+        div.className = `event-item event--${data.type}`;
+        div.innerHTML = `
+      <span class="event-time">${data.time}</span>
+      <span class="event-icon">${icons[data.type] || "📋"}</span>
+      <span class="event-text">${data.text}</span>
+    `;
+        feed.prepend(div);
+      });
+
+      // ── Clock — ONLY controlled by admin via socket ──
+      // No auto-start. Clock only moves when server sends clock events.
+      let clockSeconds = 10 * 60;
+      let clockInterval = null;
+
+      function formatClock(secs) {
+        const m = Math.floor(secs / 60).toString().padStart(2, "0");
+        const s = (secs % 60).toString().padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      // Admin sends { time: "09:45", quarter: "Q1", running: true/false }
+      socket.on(`clock_${matchId}`, (data) => {
+        const parts = data.time.split(":").map(Number);
+        clockSeconds = (parts[0] * 60) + (parts[1] || 0);
+
+        document.getElementById("clock-time").textContent = data.time;
+        document.querySelector(".clock-label").textContent = data.quarter;
+
+        // Start or stop local tick based on admin's running flag
+        if (data.running) {
+          clearInterval(clockInterval);
+          clockInterval = setInterval(() => {
+            if (clockSeconds > 0) {
+              clockSeconds--;
+              document.getElementById("clock-time").textContent = formatClock(clockSeconds);
+            } else {
+              clearInterval(clockInterval);
+            }
+          }, 1000);
+        } else {
+          clearInterval(clockInterval);
+        }
+      });
+
+      // ── Player stat updates via socket (admin logs a stat change) ──
+      socket.on(`player_stats_${matchId}`, (data) => {
+        // data = { playerId, points, fouls, assists, rebounds, steals, blocks }
+        const card = document.querySelector(`.roster-card[data-player-id="${data.playerId}"]`);
+        if (!card) return;
+
+        // Update data-attributes so hover tooltip is always in sync
+        if (data.points !== undefined) card.dataset.points = data.points;
+        if (data.fouls !== undefined) card.dataset.fouls = data.fouls;
+        if (data.assists !== undefined) card.dataset.assists = data.assists;
+        if (data.rebounds !== undefined) card.dataset.rebounds = data.rebounds;
+        // Feature 3: steals & blocks
+        if (data.steals !== undefined) card.dataset.steals = data.steals;
+        if (data.blocks !== undefined) card.dataset.blocks = data.blocks;
+
+        // Update visible tooltip values by matching the label text (immune to DOM order)
+        card.querySelectorAll(".tooltip-row").forEach(row => {
+          const label = row.querySelector("span:first-child")?.textContent?.trim().toUpperCase();
+          const valueEl = row.querySelector("span:last-child");
+          if (!label || !valueEl) return;
+
+          if (label === "PTS" && data.points !== undefined) valueEl.textContent = data.points;
+          if (label === "AST" && data.assists !== undefined) valueEl.textContent = data.assists;
+          if (label === "REB" && data.rebounds !== undefined) valueEl.textContent = data.rebounds;
+          if (label === "FOULS" && data.fouls !== undefined) valueEl.textContent = data.fouls;
+          // Feature 3: STL and BLK
+          if (label === "STL" && data.steals !== undefined) valueEl.textContent = data.steals;
+          if (label === "BLK" && data.blocks !== undefined) valueEl.textContent = data.blocks;
+        });
+      });
+    </script>
+</body>
+
+</html>

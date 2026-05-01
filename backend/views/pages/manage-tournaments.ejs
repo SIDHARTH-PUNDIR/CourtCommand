@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Organizer Command Center</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      background: #0b0d17; 
+      color: #e8eaf0; 
+      font-family: 'Barlow', sans-serif; 
+    }
+    .command-container { 
+      max-width: 1200px; 
+      margin: 50px auto; 
+      padding: 0 20px; 
+    }
+    
+    /* Header */
+    .command-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 40px; 
+    }
+    .command-header h1 { 
+      font-family: 'Anton', sans-serif; 
+      letter-spacing: 2px; 
+      font-size: 42px; 
+      margin: 0; 
+      color: white; 
+      text-transform: uppercase; 
+    }
+    .create-btn { 
+      background: #ff7a18; 
+      color: white; 
+      text-decoration: none; 
+      padding: 14px 24px; 
+      border-radius: 8px; 
+      font-weight: 600; 
+      transition: 0.2s; 
+      border: none; 
+      cursor: pointer; 
+      display: inline-block; 
+    }
+    .create-btn:hover { 
+      background: #ff8f32; 
+      box-shadow: 0 5px 15px rgba(255,122,24,0.4); 
+      transform: translateY(-2px); 
+    }
+    
+    /* Typography */
+    .section-title { 
+      font-size: 22px; 
+      font-weight: 500; 
+      margin-bottom: 25px; 
+      color: #fff; 
+    }
+    
+    /* Grid & Cards */
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+      gap: 24px; 
+    }
+    .card-panel { 
+      background: #161821; 
+      border-radius: 8px; 
+      padding: 24px; 
+      border-left: 4px solid #ff7a18; 
+      border-top: 1px solid rgba(255,255,255,0.05); 
+      border-right: 1px solid rgba(255,255,255,0.05); 
+      border-bottom: 1px solid rgba(255,255,255,0.05); 
+      transition: transform 0.2s, border-color 0.2s; 
+    }
+    .card-panel:hover { 
+      transform: translateY(-3px); 
+      border-color: rgba(255,122,24,0.5); 
+    }
+    .card-panel h3 { 
+      margin: 0 0 8px 0; 
+      font-size: 20px; 
+      font-weight: 700; 
+      color: #fff; 
+    }
+    .card-panel p { 
+      font-size: 13px; 
+      color: #a0a5b8; 
+      margin: 0 0 20px 0; 
+    }
+
+
+    /* Image Wrapper & Styling */
+    .card-img-wrapper { 
+      width: 100%; 
+      height: 180px; 
+      border-radius: 6px; 
+      overflow: hidden; 
+      margin-bottom: 16px; 
+      background: #1e2029; 
+      position: relative; 
+    }
+    .card-img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      transition: transform 0.3s ease; 
+    }
+    .card-panel:hover .card-img { 
+      transform: scale(1.05); 
+    }
+    .card-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(11, 13, 23, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ff7a18;
+      border: 1px solid rgba(255,122,24,0.3);
+    }
+    
+    /* Card Buttons */
+    .card-actions { 
+      display: flex; 
+      gap: 12px; 
+    }
+    .manage-btn { 
+      background: #1e3a5f; 
+      color: white; 
+      padding: 10px 18px; 
+      border-radius: 4px; 
+      text-decoration: none; 
+      font-size: 13px; 
+      font-weight: 600; 
+      transition: 0.2s; 
+      border: 1px solid #2a4d7a; 
+    }
+    .manage-btn:hover { 
+      background: #2a4d7a; 
+    }
+    .delete-btn { 
+      background: #f0f0f0; 
+      color: #111; 
+      padding: 10px 18px; 
+      border-radius: 4px; 
+      font-size: 13px; 
+      font-weight: 600; 
+      border: none; 
+      cursor: pointer; 
+      transition: 0.2s; 
+    }
+    .delete-btn:hover { 
+      background: #fff; 
+      box-shadow: 0 0 10px rgba(255,255,255,0.2); 
+    }
+    
+    /* Empty State */
+    .empty-state { 
+      background: rgba(255,255,255,0.02); 
+      padding: 50px; 
+      text-align: center; 
+      border-radius: 12px; 
+      border: 1px dashed rgba(255,255,255,0.1); 
+    }
+    .empty-state p { 
+      color: #a0a5b8; 
+      font-size: 15px; 
+      margin: 0; 
+    }
+  </style>
+</head>
+<body>
+
+<%- include("../partials/navbar") %>
+
+<div class="command-container">
+  <div class="command-header">
+    <h1>ORGANIZER COMMAND CENTER</h1>
+    <a href="/tournaments/create" class="create-btn">+ Create New Tournament</a>
+  </div>
+
+  <div class="section-title">My Managed Tournaments</div>
+
+  <% if (myTournaments.length === 0) { %>
+    <div class="empty-state">
+      <p>You haven't created any tournaments yet.</p>
+    </div>
+  <% } else { %>
+    <div class="grid">
+      <% myTournaments.forEach(t => { %>
+        <div class="card-panel">
+          
+          <div class="card-img-wrapper">
+            <% if (t.image) { %>
+              <img src="<%= t.image %>" alt="<%= t.name %>" class="card-img">
+            <% } else { %>
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1e2029; color: #4a5068; font-size: 12px; font-weight: 600; letter-spacing: 1px;">NO IMAGE</div>
+            <% } %>
+            <span class="card-status"><%= t.status %></span>
+          </div>
+
+          <h3><%= t.name %></h3>
+          <p>📍 <%= t.location %></p>
+          
+          <div class="card-actions">
+            <a href="/manage-tournaments/<%= t.id %>" class="manage-btn">Manage Brackets</a>
+            <form action="/tournaments/<%= t.id %>/delete" method="POST" style="margin: 0;">
+               <button class="delete-btn" onclick="return confirm('Are you sure you want to delete <%= t.name %>? This action is permanent.')">Delete</button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+</body>
+</html>

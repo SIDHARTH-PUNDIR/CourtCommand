@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Team Stats - CourtCommand</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .ai-panel {
+            background: linear-gradient(135deg, #1a1c29, #2d1b4e);
+            border: 1px solid #a855f7;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .ai-btn {
+            background: #a855f7;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .ai-btn:hover {
+            background: #9333ea;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+        <%- include("../partials/navbar") %>
+
+            <section class="dashboard">
+                <div class="dashboard-container">
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h1 style="margin: 0;">Analytics & Match History</h1>
+                        <a href="/team-dashboard" style="color: #a0a5b8; text-decoration: none;">← Back to Dashboard</a>
+                    </div>
+
+                    <div class="ai-panel">
+                        <h3 style="color: #c084fc; margin-top: 0;">✨ CourtCommand Matchup Simulator</h3>
+                        <p style="color: #a0a5b8; font-size: 14px;">Enter the team statistics to predict the winner and
+                            get recommended drills.</p>
+
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #fff; margin: 0 0 10px 0;">Select Opponent</h4>
+                            <select id="opponentSelect"
+                                style="padding: 10px; border-radius: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; width: 100%; max-width: 300px;">
+                                <% opponentTeams.forEach(team=> { %>
+                                    <option value="<%= team %>" style="color: black;">
+                                        <%= team %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+
+                        <button class="ai-btn" id="runAiBtn" onclick="simulateMatchup()">Simulate Matchup</button>
+
+                        <div id="aiResults"
+                            style="display: none; margin-top: 20px; border-top: 1px solid rgba(168,85,247,0.3); padding-top: 20px;">
+                            <span
+                                style="font-size: 11px; color: #a0a5b8; text-transform: uppercase; letter-spacing: 1px;">Win
+                                Probability Breakdown</span>
+
+                            <div style="display: flex; gap: 15px; margin: 15px 0; align-items: center;">
+                                <div
+                                    style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                                    <h4 id="aiMyTeam" style="margin: 0; color: #fff; font-size: 14px;">--</h4>
+                                    <h2 id="aiMyProb"
+                                        style="margin: 5px 0 0 0; font-family: 'DM Mono', monospace; font-size: 28px;">
+                                        --%</h2>
+                                </div>
+
+                                <div style="color: #6c728a; font-weight: bold; font-size: 14px;">VS</div>
+
+                                <div
+                                    style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                                    <h4 id="aiOppTeam" style="margin: 0; color: #fff; font-size: 14px;">--</h4>
+                                    <h2 id="aiOppProb"
+                                        style="margin: 5px 0 0 0; font-family: 'DM Mono', monospace; font-size: 28px;">
+                                        --%</h2>
+                                </div>
+                            </div>
+
+                            <span
+                                style="font-size: 11px; color: #a0a5b8; text-transform: uppercase; letter-spacing: 1px;">Recommended
+                                Drills (Based on Recent Form)</span>
+                            <ul id="aiDrills" style="color: #fff; margin-top: 10px; padding-left: 20px;">
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Past Matches</h3>
+
+                    <% if (teamMatches.length===0) { %>
+                        <p style="color:#a0a5b8;">No matches found. Play some games to generate history!</p>
+                        <% } %>
+
+                            <% teamMatches.forEach((match)=> {
+                                const myTeam = user.team.toLowerCase();
+                                const iWon = match.winner && match.winner.toLowerCase() === myTeam;
+                                const isDone = match.status === 'FINAL' || match.status === 'COMPLETED';
+                                const resultColor = isDone ? (iWon ? '#22c55e' : '#ef4444') : '#a0a5b8';
+                                %>
+                                <div
+                                    style="background: #0c1020; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                        <div>
+                                            <p style="font-size:11px; color:#a0a5b8; margin:0 0 4px;">🏆 <%=
+                                                    match.tournament_name || 'Tournament' %>
+                                            </p>
+                                            <div style="font-size:20px; font-weight:700; color:#ffffff;">
+                                                <%= match.teama %> <span style="color:#ff7a18;">
+                                                        <%= match.scorea !=null ? match.scorea : '-' %> – <%=
+                                                                match.scoreb !=null ? match.scoreb : '-' %>
+                                                    </span>
+                                                    <%= match.teamb %>
+                                            </div>
+                                        </div>
+                                        <span
+                                            style="font-size:11px; font-weight:700; padding:5px 14px; border-radius:20px; background: <%= resultColor %>22; color: <%= resultColor %>;">
+                                            <%= isDone ? (iWon ? 'WIN' : 'LOSS' ) : match.status %>
+                                        </span>
+                                    </div>
+
+                                    <details style="margin-top:16px;">
+                                        <summary
+                                            style="cursor:pointer; font-size:13px; font-weight:600; color:#ff7a18; list-style:none;">
+                                            ▶ View Box Score</summary>
+
+                                        <div style="margin-top:14px; overflow-x:auto;">
+                                            <table
+                                                style="width:100%; border-collapse:collapse; font-size:13px; text-align: center;">
+                                                <thead>
+                                                    <tr
+                                                        style="color:#a0a5b8; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                                        <th style="text-align:left; padding:6px;">Player</th>
+                                                        <th>PTS</th>
+                                                        <th>AST</th>
+                                                        <th>REB</th>
+                                                        <th>STL</th>
+                                                        <th>BLK</th>
+                                                        <th>FLS</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% match.boxScore.forEach(stat=> { %>
+                                                        <tr
+                                                            style="border-bottom:1px solid rgba(255,255,255,0.04); color: #e2e8f0;">
+                                                            <td style="text-align:left; padding:8px; font-weight:600;">
+                                                                <%= stat.name %>
+                                                            </td>
+                                                            <td style="color:#ff7a18; font-weight:700;">
+                                                                <%= stat.points ?? 0 %>
+                                                            </td>
+                                                            <td>
+                                                                <%= stat.assists ?? 0 %>
+                                                            </td>
+                                                            <td>
+                                                                <%= stat.rebounds ?? 0 %>
+                                                            </td>
+                                                            <td>
+                                                                <%= stat.steals ?? 0 %>
+                                                            </td>
+                                                            <td>
+                                                                <%= stat.blocks ?? 0 %>
+                                                            </td>
+                                                            <td style="color:#6c728a;">
+                                                                <%= stat.fouls ?? 0 %>
+                                                            </td>
+                                                        </tr>
+                                                        <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </details>
+                                </div>
+                                <% }) %>
+
+                </div>
+            </section>
+    </div>
+
+    <script>
+        async function simulateMatchup() {
+            const btn = document.getElementById('runAiBtn');
+            const resultsDiv = document.getElementById('aiResults');
+
+            btn.innerText = "Simulating...";
+            btn.style.opacity = "0.7";
+
+            try {
+                const payload = {
+                    opponent_team: document.getElementById('opponentSelect').value
+                };
+
+                const response = await fetch('/api/ask-ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.my_team) {
+                    document.getElementById('aiMyTeam').innerText = data.my_team;
+                    document.getElementById('aiOppTeam').innerText = data.opp_team;
+
+                    const myProbEl = document.getElementById('aiMyProb');
+                    const oppProbEl = document.getElementById('aiOppProb');
+
+                    myProbEl.innerText = data.my_team_prob + "%";
+                    oppProbEl.innerText = data.opp_team_prob + "%";
+
+                    // Dynamically color the favorite green and the underdog red
+                    myProbEl.style.color = data.my_team_prob >= 50 ? '#22c55e' : '#ef4444';
+                    oppProbEl.style.color = data.opp_team_prob >= 50 ? '#22c55e' : '#ef4444';
+
+                    const drillsList = document.getElementById('aiDrills');
+                    drillsList.innerHTML = '';
+                    if (data.drills && data.drills.length > 0) {
+                        data.drills.forEach(drill => {
+                            const li = document.createElement('li');
+                            li.innerText = drill;
+                            drillsList.appendChild(li);
+                        });
+                    } else {
+                        drillsList.innerHTML = '<li>No specific drills recommended. Your recent form is excellent.</li>';
+                    }
+
+                    resultsDiv.style.display = "block";
+                } else {
+                    alert("AI Engine returned an unexpected response.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Connection to server failed.");
+            }
+
+            btn.innerText = "Simulate Matchup";
+            btn.style.opacity = "1";
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CourtCommand | Player Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --orange: #ff7a18; --dark: #050912; --panel: rgba(10, 12, 24, 0.95); --border: rgba(255, 255, 255, 0.08); }
+        
+        body { 
+            margin: 0; 
+            font-family: 'Barlow', sans-serif; 
+            background: var(--dark); 
+            color: white; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .navbar { width: 100%; height: 70px; background: rgba(10, 10, 20, 0.95); display: flex; align-items: center; padding: 0 40px; border-bottom: 1px solid var(--border); box-sizing: border-box; }
+        .logo { font-family: 'Anton'; font-size: 28px; color: white; text-decoration: none; }
+        .logo span { color: var(--orange); }
+
+        .hero { text-align: center; padding: 60px 20px; }
+        .hero h1 { font-family: 'Anton'; font-size: 56px; color: var(--orange); margin: 0; letter-spacing: 2px; text-transform: uppercase; }
+        .hero p { color: #888; font-size: 18px; margin-top: 10px; font-family: 'Barlow Condensed'; }
+
+        .form-card { 
+            width: 100%; 
+            max-width: 550px; 
+            background: var(--panel); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255,122,24,0.15); 
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px);
+        }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { font-family: 'Barlow Condensed'; font-size: 13px; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 600; }
+        
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(255,255,255,0.04); 
+            border: 1px solid var(--border); 
+            border-radius: 10px; 
+            color: white; 
+            box-sizing: border-box; 
+            margin-bottom: 15px; 
+        }
+
+        input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 10px rgba(255,122,24,0.3); }
+
+        .btn-ai { 
+            width: 100%; 
+            padding: 18px; 
+            background: linear-gradient(90deg, #ff7a18, #ff8f32); 
+            border: none; 
+            border-radius: 12px; 
+            color: white; 
+            font-family: 'Barlow Condensed'; 
+            font-weight: 700; 
+            font-size: 20px; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(255,122,24,0.4); }
+
+        .result-box { display: none; margin-top: 35px; animation: fadeInUp 0.6s ease; text-align: left; }
+        .result-card { background: rgba(255,255,255,0.03); border-radius: 15px; padding: 25px; border-left: 5px solid var(--orange); }
+        .tier-header { font-family: 'Anton'; font-size: 36px; color: var(--orange); margin: 0 0 20px 0; letter-spacing: 1px; }
+
+        .badge-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .badge { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: center; }
+        .badge small { display: block; color: #666; font-size: 10px; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
+        .badge span { font-size: 16px; font-weight: bold; color: white; }
+
+        .suggestion-box { background: rgba(255,122,24,0.1); border-radius: 12px; padding: 18px; border-left: 4px solid var(--orange); }
+        .suggestion-box strong { color: var(--orange); font-family: 'Barlow Condensed'; font-size: 16px; letter-spacing: 1px; }
+        .suggestion-box p { margin: 8px 0 0 0; color: #ccc; font-size: 14px; line-height: 1.5; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar"><a href="/" class="logo">COURTCOMMAND <span>AI</span></a></nav>
+
+<section class="hero">
+    <h1>PLAYER ANALYZER</h1>
+    <p>Analyze player performance.</p>
+</section>
+
+<div class="form-card">
+    <div class="stat-grid">
+        <div class="input-group"><label>Points</label><input id="PTS" type="number" placeholder="24"></div>
+        <div class="input-group"><label>Assists</label><input id="AST" type="number" placeholder="8"></div>
+        <div class="input-group"><label>Rebounds</label><input id="REB" type="number" placeholder="6"></div>
+        <div class="input-group"><label>FG% (0-1)</label><input id="FG" type="number" step="0.01" placeholder="0.52"></div>
+        <div class="input-group"><label>Turnovers</label><input id="TOV" type="number" placeholder="2"></div>
+        <div class="input-group"><label>Minutes</label><input id="MIN" type="number" placeholder="34"></div>
+    </div>
+    <button class="btn-ai" onclick="analyze()">Analyze Performance</button>
+
+    <div id="result" class="result-box">
+        <div class="result-card">
+            <h2 class="tier-header" id="level"></h2>
+            
+            <div class="badge-row">
+                <div class="badge"><small>Projection</small><span id="proj">--</span> PTS</div>
+                <div class="badge"><small>Strength</small><span id="str">--</span></div>
+                <div class="badge"><small>Weakness</small><span id="weak">--</span></div>
+            </div>
+
+            <div class="suggestion-box">
+                <strong>COACHING SUGGESTION</strong>
+                <p id="sugg"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function analyze() {
+        const data = {
+            PTS: parseFloat(PTS.value) || 0,
+            AST: parseFloat(AST.value) || 0,
+            REB: parseFloat(REB.value) || 0,
+            FG_PCT: parseFloat(FG.value) || 0,
+            TOV: parseFloat(TOV.value) || 0,
+            MIN: parseFloat(MIN.value) || 0
+        };
+
+        try {
+            const res = await fetch("/analyze", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+            const out = await res.json();
+
+            document.getElementById("result").style.display = "block";
+            document.getElementById("level").innerText = out.level;
+            document.getElementById("proj").innerText = out.projected;
+            document.getElementById("str").innerText = out.strength;
+            document.getElementById("weak").innerText = out.weakness;
+            document.getElementById("sugg").innerText = out.suggestion;
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        } catch (err) {
+            alert("Connection Error: Ensure the Flask server is running.");
+        }
+    }
+</script>
+
+</body>
+</html>
